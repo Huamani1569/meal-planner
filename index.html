@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Meal Planner: busca recetas por ingrediente y organiza tu menú semanal.">
+  <title>Meal Planner — Planificador semanal de comidas</title>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <!-- ===== CABECERA ===== -->
+  <header class="cabecera">
+    <div class="contenedor">
+      <h1 class="cabecera__titulo">🍽️ Meal Planner</h1>
+      <p class="cabecera__subtitulo">Planificador semanal de comidas</p>
+    </div>
+  </header>
+
+  <main class="contenedor">
+
+    <!-- ===== 1. FORMULARIO DE BÚSQUEDA (RF01) ===== -->
+    <section class="tarjeta-seccion buscador" aria-labelledby="titulo-buscador">
+      <h2 id="titulo-buscador">Buscar recetas por ingrediente</h2>
+
+      <!-- novalidate: la validación la hacemos nosotros con JavaScript (app.js) -->
+      <form id="formulario-busqueda" class="buscador__formulario" novalidate>
+        <label for="campo-ingrediente" class="buscador__etiqueta">Ingrediente</label>
+        <div class="buscador__fila">
+          <input
+            type="text"
+            id="campo-ingrediente"
+            name="ingrediente"
+            placeholder="Ej.: chicken, beef, rice, pollo, arroz..."
+            autocomplete="off">
+          <button type="submit" id="boton-buscar" class="boton boton--primario">Buscar recetas</button>
+        </div>
+        <p class="buscador__ayuda">
+          Escribe el ingrediente en inglés o en español (los más comunes). Prueba con:
+          <button type="button" class="sugerencia" data-ingrediente="chicken">chicken</button>
+          <button type="button" class="sugerencia" data-ingrediente="beef">beef</button>
+          <button type="button" class="sugerencia" data-ingrediente="salmon">salmon</button>
+          <button type="button" class="sugerencia" data-ingrediente="arroz">arroz</button>
+        </p>
+      </form>
+    </section>
+
+    <!-- ===== 2. RESULTADOS + RECETA SELECCIONADA ===== -->
+    <div class="contenido">
+
+      <!-- Resultados de la búsqueda (RF03) -->
+      <section class="tarjeta-seccion resultados" aria-labelledby="titulo-resultados">
+        <h2 id="titulo-resultados">Resultados</h2>
+
+        <!-- Estados de la UI: cargando / sin resultados / error / información -->
+        <div id="estado" class="estado estado--info" role="status" aria-live="polite">
+          Escribe un ingrediente y pulsa «Buscar recetas» para empezar.
+        </div>
+
+        <p id="contador-resultados" class="resultados__contador"></p>
+        <div id="lista-resultados" class="resultados__lista"></div>
+      </section>
+
+      <!-- Receta seleccionada (RF04 y RF05) -->
+      <aside id="detalle" class="tarjeta-seccion detalle" aria-labelledby="titulo-detalle">
+        <h2 id="titulo-detalle">Receta seleccionada</h2>
+
+        <p id="detalle-vacio" class="detalle__vacio">
+          Haz clic en una receta de los resultados para ver su información.
+        </p>
+
+        <div id="detalle-contenido" hidden>
+          <img id="detalle-imagen" class="detalle__imagen" alt="">
+          <h3 id="detalle-nombre" class="detalle__nombre"></h3>
+          <p class="detalle__etiquetas">
+            <span id="detalle-categoria" class="etiqueta"></span>
+            <span id="detalle-area" class="etiqueta etiqueta--area"></span>
+          </p>
+
+          <!-- Formulario para asignar la receta a un día (RF05) -->
+          <form id="formulario-plan" class="detalle__plan">
+            <label for="selector-dia">Agregar al día:</label>
+            <div class="detalle__plan-fila">
+              <select id="selector-dia" name="dia">
+                <option value="lunes">Lunes</option>
+                <option value="martes">Martes</option>
+                <option value="miercoles">Miércoles</option>
+                <option value="jueves">Jueves</option>
+                <option value="viernes">Viernes</option>
+                <option value="sabado">Sábado</option>
+                <option value="domingo">Domingo</option>
+              </select>
+              <button type="submit" class="boton boton--exito">Agregar al plan</button>
+            </div>
+          </form>
+          <p id="mensaje-plan" class="mensaje" role="status" aria-live="polite" hidden></p>
+
+          <h4>Ingredientes</h4>
+          <ul id="detalle-ingredientes" class="detalle__ingredientes"></ul>
+
+          <h4>Preparación</h4>
+          <p id="detalle-instrucciones" class="detalle__instrucciones"></p>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ===== 3. MENÚ SEMANAL (RF06 y RF07) ===== -->
+    <section class="tarjeta-seccion plan" aria-labelledby="titulo-plan">
+      <div class="plan__cabecera">
+        <h2 id="titulo-plan">Menú semanal</h2>
+        <p id="contador-plan" class="plan__contador">0 recetas planificadas</p>
+      </div>
+      <!-- El calendario se genera con JavaScript (planner.js → renderizarPlan) -->
+      <div id="calendario" class="calendario"></div>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    <p>Meal Planner · Práctica calificada de Ingeniería Web · Datos: <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a></p>
+  </footer>
+
+  <!-- Orden de carga: primero la API, luego el planificador y al final la app que los usa -->
+  <script src="js/api.js"></script>
+  <script src="js/planner.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

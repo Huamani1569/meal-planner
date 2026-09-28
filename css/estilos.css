@@ -1,0 +1,566 @@
+/* =========================================================
+   Meal Planner — estilos.css
+   Organización:
+   1. Variables (colores, espacios, bordes)
+   2. Estilos base
+   3. Cabecera y pie
+   4. Botones y formulario de búsqueda
+   5. Estados de la UI (cargando, vacío, error)
+   6. Tarjetas de recetas (resultados)
+   7. Receta seleccionada (detalle)
+   8. Calendario semanal (menú)
+   9. Diseño adaptable (responsive)
+   ========================================================= */
+
+/* ---------- 1. VARIABLES ---------- */
+:root {
+  --color-primario: #e8590c;       /* naranja: botones principales y títulos */
+  --color-primario-oscuro: #c2410c;
+  --color-exito: #2f9e44;          /* verde: agregar al plan, mensajes correctos */
+  --color-error: #e03131;          /* rojo: errores y botón eliminar */
+  --color-aviso: #f08c00;          /* amarillo: sin resultados */
+  --color-info: #1c7ed6;           /* azul: mensajes informativos */
+  --color-texto: #212529;
+  --color-texto-suave: #6c757d;
+  --color-fondo: #fff8f1;
+  --color-superficie: #ffffff;
+  --color-borde: #f1e3d3;
+  --radio: 12px;
+  --sombra: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --sombra-hover: 0 8px 20px rgba(0, 0, 0, 0.14);
+}
+
+/* ---------- 2. BASE ---------- */
+* {
+  box-sizing: border-box;
+}
+
+/* Garantiza que el atributo hidden oculte el elemento aunque tenga otro display */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--color-texto);
+  background-color: var(--color-fondo);
+  line-height: 1.5;
+}
+
+h2 {
+  margin: 0 0 16px;
+  font-size: 1.3rem;
+  color: var(--color-primario-oscuro);
+}
+
+h4 {
+  margin: 20px 0 8px;
+  font-size: 1rem;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+.contenedor {
+  width: min(1200px, 100% - 32px);
+  margin-inline: auto;
+}
+
+/* Cada bloque principal (buscador, resultados, detalle, plan) es una "tarjeta" blanca */
+.tarjeta-seccion {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+/* ---------- 3. CABECERA Y PIE ---------- */
+.cabecera {
+  background: linear-gradient(135deg, var(--color-primario), #f59f00);
+  color: #fff;
+  padding: 28px 0;
+  margin-bottom: 24px;
+}
+
+.cabecera__titulo {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.cabecera__subtitulo {
+  margin: 4px 0 0;
+  opacity: 0.95;
+}
+
+.pie {
+  text-align: center;
+  color: var(--color-texto-suave);
+  font-size: 0.9rem;
+  padding: 16px;
+}
+
+.pie a {
+  color: var(--color-primario-oscuro);
+}
+
+/* ---------- 4. BOTONES Y BUSCADOR ---------- */
+.boton {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.boton:active {
+  transform: scale(0.97);
+}
+
+.boton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.boton--primario {
+  background-color: var(--color-primario);
+}
+
+.boton--primario:hover:not(:disabled) {
+  background-color: var(--color-primario-oscuro);
+}
+
+.boton--exito {
+  background-color: var(--color-exito);
+}
+
+.boton--exito:hover {
+  background-color: #237032;
+}
+
+.buscador__etiqueta {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.buscador__fila {
+  display: flex;
+  gap: 12px;
+}
+
+.buscador__fila input {
+  flex: 1;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 2px solid var(--color-borde);
+  border-radius: 8px;
+}
+
+.buscador__fila input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-primario);
+}
+
+.buscador__ayuda {
+  margin: 12px 0 0;
+  color: var(--color-texto-suave);
+  font-size: 0.9rem;
+}
+
+.sugerencia {
+  background-color: #fff4e6;
+  border: 1px solid #ffd8a8;
+  color: var(--color-primario-oscuro);
+  border-radius: 999px;
+  padding: 2px 12px;
+  margin: 2px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.sugerencia:hover {
+  background-color: #ffe8cc;
+}
+
+/* ---------- 5. ESTADOS DE LA UI ---------- */
+.estado {
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 5px solid;
+  margin-bottom: 16px;
+}
+
+.estado--info {
+  background-color: #e7f5ff;
+  border-color: var(--color-info);
+}
+
+.estado--cargando {
+  background-color: #fff4e6;
+  border-color: var(--color-primario);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Círculo giratorio que indica "cargando" */
+.estado--cargando::before {
+  content: "";
+  width: 22px;
+  height: 22px;
+  border: 3px solid #ffd8a8;
+  border-top-color: var(--color-primario);
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.estado--vacio {
+  background-color: #fff9db;
+  border-color: var(--color-aviso);
+}
+
+.estado--error {
+  background-color: #fff5f5;
+  border-color: var(--color-error);
+  color: #a61e1e;
+}
+
+/* ---------- 6. TARJETAS DE RECETAS ---------- */
+.contenido {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.resultados__contador {
+  margin: 0 0 12px;
+  color: var(--color-texto-suave);
+}
+
+.resultados__contador:empty {
+  display: none;
+}
+
+.resultados__lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.tarjeta {
+  background-color: var(--color-superficie);
+  border: 2px solid var(--color-borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-hover);
+}
+
+/* Clase que se agrega con JavaScript cuando el usuario selecciona la receta */
+.tarjeta--seleccionada {
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(232, 89, 12, 0.25);
+}
+
+.tarjeta__imagen {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.tarjeta__cuerpo {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.tarjeta__nombre {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.tarjeta__boton {
+  margin-top: auto;
+  background: none;
+  border: 1px solid var(--color-primario);
+  color: var(--color-primario-oscuro);
+  border-radius: 6px;
+  padding: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tarjeta__boton:hover {
+  background-color: #fff4e6;
+}
+
+.etiqueta {
+  display: inline-block;
+  background-color: #fff4e6;
+  color: var(--color-primario-oscuro);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.etiqueta--area {
+  background-color: #e7f5ff;
+  color: #1864ab;
+}
+
+/* ---------- 7. RECETA SELECCIONADA ---------- */
+.detalle {
+  position: sticky;
+  top: 16px;
+}
+
+.detalle__vacio {
+  color: var(--color-texto-suave);
+  text-align: center;
+  padding: 32px 8px;
+  border: 2px dashed var(--color-borde);
+  border-radius: 8px;
+  margin: 0;
+}
+
+.detalle__imagen {
+  width: 100%;
+  border-radius: 8px;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.detalle__nombre {
+  margin: 12px 0 6px;
+  font-size: 1.2rem;
+}
+
+.detalle__etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.detalle__plan {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.detalle__plan label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.detalle__plan-fila {
+  display: flex;
+  gap: 8px;
+}
+
+.detalle__plan-fila select {
+  flex: 1;
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid var(--color-borde);
+  border-radius: 8px;
+}
+
+.detalle__ingredientes {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  columns: 2;
+}
+
+.detalle__instrucciones {
+  font-size: 0.9rem;
+  white-space: pre-line;     /* respeta los saltos de línea que envía la API */
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding-right: 6px;
+}
+
+/* Mensajes al agregar recetas al plan */
+.mensaje {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mensaje--exito {
+  background-color: #ebfbee;
+  color: #237032;
+}
+
+.mensaje--error {
+  background-color: #fff5f5;
+  color: #a61e1e;
+}
+
+/* ---------- 8. CALENDARIO SEMANAL ---------- */
+.plan__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plan__contador {
+  margin: 0 0 16px;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+.calendario {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);  /* 7 columnas = 7 días */
+  gap: 12px;
+}
+
+.dia {
+  background-color: #fffaf5;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Días que ya tienen al menos una receta */
+.dia--con-recetas {
+  background-color: #fff4e6;
+  border-color: #ffc078;
+}
+
+.dia__titulo {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  text-align: center;
+  color: var(--color-primario-oscuro);
+  border-bottom: 2px solid var(--color-borde);
+  padding-bottom: 6px;
+}
+
+.dia__vacio {
+  margin: auto 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
+}
+
+.dia__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comida {
+  background-color: var(--color-superficie);
+  border-radius: 8px;
+  box-shadow: var(--sombra);
+  overflow: hidden;
+  font-size: 0.8rem;
+}
+
+.comida__imagen {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.comida__nombre {
+  display: block;
+  padding: 6px 8px 0;
+  font-weight: 600;
+}
+
+.comida__eliminar {
+  display: block;
+  width: calc(100% - 16px);
+  margin: 6px 8px 8px;
+  background: none;
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+  border-radius: 6px;
+  padding: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.comida__eliminar:hover {
+  background-color: var(--color-error);
+  color: #fff;
+}
+
+/* ---------- 9. RESPONSIVE ---------- */
+@media (max-width: 1000px) {
+  .calendario {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .contenido {
+    grid-template-columns: 1fr;
+  }
+
+  .detalle {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .buscador__fila,
+  .detalle__plan-fila {
+    flex-direction: column;
+  }
+
+  .calendario {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cabecera__titulo {
+    font-size: 1.6rem;
+  }
+
+  .tarjeta-seccion {
+    padding: 16px;
+  }
+}
