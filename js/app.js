@@ -15,6 +15,7 @@ const botonesSugerencia = document.querySelectorAll(".sugerencia");
 const estado = document.getElementById("estado");
 const contadorResultados = document.getElementById("contador-resultados");
 const listaResultados = document.getElementById("lista-resultados");
+const inspiracionVacia = document.getElementById("inspiracion-vacia");
 
 const detalle = document.getElementById("detalle");
 const detalleVacio = document.getElementById("detalle-vacio");
@@ -25,6 +26,8 @@ const detalleCategoria = document.getElementById("detalle-categoria");
 const detalleArea = document.getElementById("detalle-area");
 const detalleIngredientes = document.getElementById("detalle-ingredientes");
 const detalleInstrucciones = document.getElementById("detalle-instrucciones");
+const detalleIdioma = document.getElementById("detalle-idioma");
+const cantidadIngredientes = document.getElementById("cantidad-ingredientes");
 
 const formularioPlan = document.getElementById("formulario-plan");
 const selectorDia = document.getElementById("selector-dia");
@@ -34,7 +37,7 @@ const calendario = document.getElementById("calendario");
 const contadorPlan = document.getElementById("contador-plan");
 
 // Texto original del botón (se restaura al terminar la búsqueda)
-const TEXTO_BOTON_BUSCAR = botonBuscar.textContent;
+const CONTENIDO_BOTON_BUSCAR = botonBuscar.innerHTML;
 
 // ---------- 2. ESTADO DE LA APLICACIÓN ----------
 let recetaSeleccionada = null;   // receta que el usuario eligió de los resultados
@@ -60,19 +63,24 @@ function mostrarCargando(ingrediente) {
   mostrarEstado("cargando", "Buscando recetas con «" + ingrediente + "»...");
   botonBuscar.disabled = true;
   botonBuscar.textContent = "Buscando...";
+  inspiracionVacia.hidden = true;
+  listaResultados.setAttribute("aria-busy", "true");
+  botonesSugerencia.forEach(function (boton) { boton.disabled = true; });
 }
 
 /** Se ejecuta siempre al terminar la búsqueda (con éxito o con error). */
 function terminarCarga() {
   botonBuscar.disabled = false;
-  botonBuscar.textContent = TEXTO_BOTON_BUSCAR;
+  botonBuscar.innerHTML = CONTENIDO_BOTON_BUSCAR;
+  listaResultados.setAttribute("aria-busy", "false");
+  botonesSugerencia.forEach(function (boton) { boton.disabled = false; });
 }
 
 /** Estado VACÍO: la búsqueda funcionó pero no hay recetas. */
 function mostrarSinResultados(ingrediente) {
   mostrarEstado(
     "vacio",
-    "No se encontraron recetas con «" + ingrediente + "». Prueba con otro ingrediente en inglés, por ejemplo: chicken, beef o rice."
+    "No encontramos recetas con «" + ingrediente + "». Prueba con pollo, carne, arroz o un ingrediente en inglés."
   );
 }
 
@@ -90,6 +98,7 @@ function manejarError(error) {
 function limpiarResultados() {
   listaResultados.innerHTML = "";
   contadorResultados.textContent = "";
+  inspiracionVacia.hidden = false;
 }
 
 // ---------- 4. BÚSQUEDA (RF01, RF02, RF03) ----------
@@ -100,6 +109,8 @@ function limpiarResultados() {
  */
 function manejarBusqueda(evento) {
   evento.preventDefault();   // evita que el formulario recargue la página
+  // Evita peticiones simultáneas si se pulsa Enter varias veces.
+  if (botonBuscar.disabled) { return; }
 
   const ingrediente = campoIngrediente.value.trim().toLowerCase();
 
@@ -114,7 +125,7 @@ function manejarBusqueda(evento) {
   // Validación 2: solo letras y espacios (sin números ni símbolos)
   if (!/^[a-záéíóúüñ\s]+$/.test(ingrediente)) {
     limpiarResultados();
-    mostrarEstado("error", "El ingrediente solo puede contener letras. Ejemplo: chicken.");
+    mostrarEstado("error", "El ingrediente solo puede contener letras. Por ejemplo: pollo.");
     campoIngrediente.focus();
     return;
   }
@@ -127,6 +138,10 @@ function manejarBusqueda(evento) {
  */
 function buscar(ingrediente) {
   limpiarResultados();
+  recetaSeleccionada = null;
+  detalleContenido.hidden = true;
+  detalleVacio.hidden = false;
+  mensajePlan.hidden = true;
   mostrarCargando(ingrediente);
 
   buscarRecetasPorIngrediente(ingrediente)   // (api.js) devuelve una Promesa
@@ -144,11 +159,13 @@ function buscar(ingrediente) {
 /** Estado RESULTADOS: crea una tarjeta por cada receta. */
 function mostrarResultados(recetas) {
   ocultarEstado();
+  inspiracionVacia.hidden = true;
   contadorResultados.textContent =
-    "Se encontraron " + recetas.length + " recetas. Haz clic en una para ver su información.";
+    recetas.length + (recetas.length === 1 ? " receta para descubrir." : " recetas para descubrir. Elige tu favorita.");
 
-  recetas.forEach(function (receta) {
+  recetas.forEach(function (receta, indice) {
     const tarjeta = crearTarjetaReceta(receta, seleccionarReceta);
+    tarjeta.style.setProperty("--orden", indice);
     listaResultados.appendChild(tarjeta);
   });
 }
@@ -176,9 +193,13 @@ function crearTarjetaReceta(receta, alSeleccionar) {
 
   const imagen = document.createElement("img");
   imagen.className = "tarjeta__imagen";
-  imagen.src = receta.imagen + "/preview";
+  // La fotografía original evita la baja resolución de /preview.
+  imagen.src = receta.imagen;
   imagen.alt = receta.nombre;
   imagen.loading = "lazy";
+  imagen.decoding = "async";
+  imagen.width = 700;
+  imagen.height = 700;
 
   const cuerpo = document.createElement("div");
   cuerpo.className = "tarjeta__cuerpo";
@@ -202,6 +223,9 @@ function crearTarjetaReceta(receta, alSeleccionar) {
   boton.type = "button";
   boton.className = "tarjeta__boton";
   boton.textContent = "Ver receta";
+  boton.appendChild(crearIcono("flecha"));
+  boton.setAttribute("aria-label", "Ver receta: " + receta.nombre);
+  boton.setAttribute("aria-pressed", "false");
 
   // Armamos la tarjeta (de adentro hacia afuera)
   etiquetas.appendChild(categoria);
@@ -230,15 +254,18 @@ function seleccionarReceta(receta, tarjeta) {
   const anterior = document.querySelector(".tarjeta--seleccionada");
   if (anterior) {
     anterior.classList.remove("tarjeta--seleccionada");
+    anterior.querySelector("button").setAttribute("aria-pressed", "false");
   }
   tarjeta.classList.add("tarjeta--seleccionada");
+  tarjeta.querySelector("button").setAttribute("aria-pressed", "true");
 
   mostrarDetalle(receta);
   mensajePlan.hidden = true;
 
   // En pantallas pequeñas el detalle queda debajo: nos desplazamos hasta él
   if (window.innerWidth <= 900) {
-    detalle.scrollIntoView({ behavior: "smooth" });
+    const movimientoReducido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    detalle.scrollIntoView({ behavior: movimientoReducido ? "instant" : "smooth" });
   }
 }
 
@@ -253,6 +280,10 @@ function mostrarDetalle(receta) {
   detalleCategoria.textContent = "Categoría: " + receta.categoria;
   detalleArea.textContent = "Origen: " + receta.area;
   detalleInstrucciones.textContent = receta.instrucciones;
+  detalleIdioma.textContent = receta.traducida
+    ? "Ingredientes y preparación en español."
+    : "Ingredientes y preparación en el idioma original; esta receta aún no tiene traducción guardada.";
+  cantidadIngredientes.textContent = receta.ingredientes.length + " ingredientes";
 
   // Lista de ingredientes: borramos la anterior y creamos un <li> por ingrediente
   detalleIngredientes.innerHTML = "";
@@ -320,3 +351,50 @@ botonesSugerencia.forEach(function (boton) {
 
 // Dibujamos el calendario vacío al cargar la página
 actualizarPlan();
+
+// ---------- 8. PRESENTACIÓN: ICONOS Y NAVEGACIÓN ----------
+
+/** Crea un icono usando los símbolos SVG locales de index.html. */
+function crearIcono(nombre) {
+  const icono = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const referencia = document.createElementNS("http://www.w3.org/2000/svg", "use");
+  icono.classList.add("icono");
+  icono.setAttribute("aria-hidden", "true");
+  referencia.setAttribute("href", "#icono-" + nombre);
+  icono.appendChild(referencia);
+  return icono;
+}
+
+const navegacion = document.querySelector(".navegacion");
+const enlacesNavegacion = document.querySelectorAll(".navegacion__enlace");
+
+function activarSeccion(id) {
+  enlacesNavegacion.forEach(function (enlace, indice) {
+    const activo = enlace.getAttribute("href") === "#" + id;
+    enlace.classList.toggle("navegacion__enlace--activo", activo);
+    if (activo) {
+      enlace.setAttribute("aria-current", "location");
+      navegacion.style.setProperty("--pestana", indice);
+    } else {
+      enlace.removeAttribute("aria-current");
+    }
+  });
+}
+
+enlacesNavegacion.forEach(function (enlace) {
+  enlace.addEventListener("click", function () {
+    activarSeccion(enlace.getAttribute("href").slice(1));
+  });
+});
+
+// Al desplazarse, la sección visible mueve el indicador. No hay un gesto personalizado.
+if ("IntersectionObserver" in window) {
+  const observadorSecciones = new IntersectionObserver(function (entradas) {
+    entradas.forEach(function (entrada) {
+      if (entrada.isIntersecting) { activarSeccion(entrada.target.id); }
+    });
+  }, { rootMargin: "-15% 0px -45% 0px" });
+  ["explorar", "recetas", "mi-semana"].forEach(function (id) {
+    observadorSecciones.observe(document.getElementById(id));
+  });
+}

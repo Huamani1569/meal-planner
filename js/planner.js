@@ -123,8 +123,10 @@ function renderizarPlan(contenedor, alEliminar) {
 
         const imagen = document.createElement("img");
         imagen.className = "comida__imagen";
-        imagen.src = receta.imagen + "/preview";   // versión pequeña de la imagen
+        imagen.src = receta.imagen;   // fotografía original, cargada cuando se necesita
         imagen.alt = receta.nombre;
+        imagen.loading = "lazy";
+        imagen.decoding = "async";
 
         const nombre = document.createElement("span");
         nombre.className = "comida__nombre";
@@ -134,6 +136,7 @@ function renderizarPlan(contenedor, alEliminar) {
         botonEliminar.type = "button";
         botonEliminar.className = "comida__eliminar";
         botonEliminar.textContent = "Eliminar";
+        botonEliminar.setAttribute("aria-label", "Eliminar " + receta.nombre + " del " + NOMBRES_DIAS[dia]);
         botonEliminar.addEventListener("click", function () {
           alEliminar(dia, receta.id);   // llamamos al callback que nos pasó app.js
         });

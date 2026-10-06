@@ -47,7 +47,7 @@ const TRADUCCIONES = {
  * Ejemplo: "pollo" → "chicken", "chicken breast" → "chicken_breast"
  */
 function prepararIngrediente(texto) {
-  const traducido = TRADUCCIONES[texto] || texto;
+  const traducido = typeof TRADUCCIONES[texto] === "string" ? TRADUCCIONES[texto] : texto;
   return traducido.replace(/\s+/g, "_");
 }
 
@@ -57,13 +57,24 @@ function prepararIngrediente(texto) {
  * que será capturado por el .catch() en app.js.
  */
 function pedirJSON(url) {
-  return fetch(url)                      // fetch devuelve una Promesa<Response>
+  // Cancelamos una consulta que tarde más de 20 segundos para permitir reintentar.
+  const controlador = new AbortController();
+  const limiteEspera = setTimeout(function () { controlador.abort(); }, 20000);
+
+  return fetch(url, { signal: controlador.signal }) // Promesa<Response>
     .then(function (respuesta) {
       if (!respuesta.ok) {
         throw new Error("La API respondió con el código " + respuesta.status);
       }
       return respuesta.json();           // .json() también devuelve una Promesa
-    });
+    })
+    .catch(function (error) {
+      if (error.name === "AbortError") {
+        throw new Error("La API tardó demasiado en responder. Vuelve a intentarlo.");
+      }
+      throw error;
+    })
+    .finally(function () { clearTimeout(limiteEspera); });
 }
 
 /**
@@ -108,10 +119,11 @@ function obtenerDetalleReceta(id) {
 }
 
 /**
- * Transforma el objeto de la API (strMeal, strCategory...) en un objeto
- * más sencillo y en español, que es el que usa el resto de la aplicación.
+ * Simplifica los datos y aplica las traducciones guardadas por idMeal.
+ * Si una receta no está traducida, conserva sus ingredientes e instrucciones.
  */
 function convertirReceta(meal) {
+  const traduccion = RECETAS_ES[meal.idMeal];
   // La API guarda los ingredientes en 20 campos: strIngredient1 ... strIngredient20
   const ingredientes = [];
   for (let i = 1; i <= 20; i++) {
@@ -124,11 +136,12 @@ function convertirReceta(meal) {
 
   return {
     id: meal.idMeal,
-    nombre: meal.strMeal,
-    categoria: meal.strCategory || "Sin categoría",
-    area: meal.strArea || "Origen desconocido",
+    nombre: traduccion ? traduccion.nombre : meal.strMeal,
+    categoria: CATEGORIAS_ES[meal.strCategory] || meal.strCategory || "Sin categoría",
+    area: ORIGENES_ES[meal.strArea] || meal.strArea || "Origen desconocido",
     imagen: meal.strMealThumb,
-    instrucciones: meal.strInstructions || "Sin instrucciones disponibles.",
-    ingredientes: ingredientes
+    instrucciones: traduccion ? traduccion.instrucciones : meal.strInstructions || "Sin instrucciones disponibles.",
+    ingredientes: traduccion ? traduccion.ingredientes.slice() : ingredientes,
+    traducida: Boolean(traduccion)
   };
 }

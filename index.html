@@ -3,124 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Meal Planner: busca recetas por ingrediente y organiza tu menú semanal.">
-  <title>Meal Planner — Planificador semanal de comidas</title>
+  <meta name="theme-color" content="#f5f7f2">
+  <meta name="description" content="Descubre recetas y organiza una semana a tu gusto con Meal Planner.">
+  <title>Meal Planner · Tu semana, a tu gusto</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/estilos.css">
 </head>
 <body>
-
-  <!-- ===== CABECERA ===== -->
+  <a class="saltar" href="#campo-ingrediente">Ir al buscador</a>
+  <!-- Iconos locales: no requieren una librería ni una conexión adicional. -->
+  <svg class="iconos" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="icono-plato" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M3 3v5a2 2 0 0 0 4 0V3M5 3v18M20 3c-3 2-3 7 0 8v10M20 3v8"/></symbol>
+    <symbol id="icono-buscar" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="icono-flecha" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="icono-calendario" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="4"/><path d="M7 3v4m10-4v4M3 11h18m-14 4h2m3 0h2m3 0h1"/></symbol>
+    <symbol id="icono-mas" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="icono-hoja" viewBox="0 0 24 24"><path d="M20 3C9 2 3 7 5 14c2 7 14 7 15-11ZM4 21 15 10"/></symbol>
+    <symbol id="icono-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  </svg>
   <header class="cabecera">
-    <div class="contenedor">
-      <h1 class="cabecera__titulo">🍽️ Meal Planner</h1>
-      <p class="cabecera__subtitulo">Planificador semanal de comidas</p>
+    <div class="contenedor cabecera__interior">
+      <a class="marca" href="#inicio" aria-label="Meal Planner, inicio"><span class="marca__icono"><svg class="icono" aria-hidden="true"><use href="#icono-plato"/></svg></span><span>meal<span class="marca__ligera">planner</span><span class="marca__punto">.</span></span></a>
+      <span class="cabecera__nota"><span class="punto-verde"></span> Un poco de orden. Mucho sabor.</span>
+      <a class="cabecera__plan" href="#mi-semana"><svg class="icono" aria-hidden="true"><use href="#icono-calendario"/></svg> Mi semana <span aria-hidden="true">↗</span></a>
     </div>
   </header>
-
-  <main class="contenedor">
-
-    <!-- ===== 1. FORMULARIO DE BÚSQUEDA (RF01) ===== -->
-    <section class="tarjeta-seccion buscador" aria-labelledby="titulo-buscador">
-      <h2 id="titulo-buscador">Buscar recetas por ingrediente</h2>
-
-      <!-- novalidate: la validación la hacemos nosotros con JavaScript (app.js) -->
+  <main id="inicio" class="contenedor">
+    <section class="presentacion" aria-labelledby="titulo-principal">
+      <div class="presentacion__texto">
+        <p class="sobretitulo"><svg class="icono" aria-hidden="true"><use href="#icono-hoja"/></svg> Comer bien empieza con una idea</p>
+        <h1 id="titulo-principal">Tu semana,<br><em>a tu gusto.</em></h1>
+        <p class="presentacion__descripcion">Descubre algo rico. Hazlo parte de tu semana.<br>Lo demás, lo pones tú.</p>
+        <a class="enlace-explorar" href="#explorar">Encuentra tu próxima receta <svg class="icono" aria-hidden="true"><use href="#icono-flecha"/></svg></a>
+      </div>
+      <div class="presentacion__visual">
+        <div class="foto-principal"><img src="https://www.themealdb.com/images/media/meals/wruvqv1511880994.jpg" alt="Pollo a la vasca con arroz y verduras" width="700" height="700" fetchpriority="high"><span class="foto-principal__etiqueta vidrio"><svg class="icono" aria-hidden="true"><use href="#icono-hoja"/></svg> Ideas que se disfrutan</span></div>
+        <div class="nota-flotante vidrio"><span class="nota-flotante__icono"><svg class="icono" aria-hidden="true"><use href="#icono-calendario"/></svg></span><span><strong>Una semana más fácil</strong><small>Un plato a la vez.</small></span><svg class="icono nota-flotante__check" aria-hidden="true"><use href="#icono-check"/></svg></div>
+        <span class="presentacion__pie">BUENA COMIDA. BUENOS MOMENTOS.</span>
+      </div>
+    </section>
+    <section id="explorar" class="buscador vidrio" aria-labelledby="titulo-buscador">
+      <div class="buscador__cabecera"><div><p class="sobretitulo">01 / DESCUBRE</p><h2 id="titulo-buscador">¿Qué te apetece cocinar?</h2></div><span class="buscador__detalle">Empieza por un ingrediente</span></div>
       <form id="formulario-busqueda" class="buscador__formulario" novalidate>
-        <label for="campo-ingrediente" class="buscador__etiqueta">Ingrediente</label>
-        <div class="buscador__fila">
-          <input
-            type="text"
-            id="campo-ingrediente"
-            name="ingrediente"
-            placeholder="Ej.: chicken, beef, rice, pollo, arroz..."
-            autocomplete="off">
-          <button type="submit" id="boton-buscar" class="boton boton--primario">Buscar recetas</button>
-        </div>
-        <p class="buscador__ayuda">
-          Escribe el ingrediente en inglés o en español (los más comunes). Prueba con:
-          <button type="button" class="sugerencia" data-ingrediente="chicken">chicken</button>
-          <button type="button" class="sugerencia" data-ingrediente="beef">beef</button>
-          <button type="button" class="sugerencia" data-ingrediente="salmon">salmon</button>
-          <button type="button" class="sugerencia" data-ingrediente="arroz">arroz</button>
-        </p>
+        <label for="campo-ingrediente" class="solo-lectores">Ingrediente en español o inglés</label>
+        <div class="buscador__fila"><div class="buscador__campo"><svg class="icono" aria-hidden="true"><use href="#icono-buscar"/></svg><input type="text" id="campo-ingrediente" name="ingrediente" placeholder="Pollo, arroz, salmón…" autocomplete="off" aria-describedby="ayuda-buscador"></div><button type="submit" id="boton-buscar" class="boton boton--primario">Buscar recetas <svg class="icono" aria-hidden="true"><use href="#icono-flecha"/></svg></button></div>
+        <div class="buscador__ayuda" id="ayuda-buscador"><span>Prueba con</span><button type="button" class="sugerencia" data-ingrediente="pollo">Pollo</button><button type="button" class="sugerencia" data-ingrediente="carne">Carne</button><button type="button" class="sugerencia" data-ingrediente="arroz">Arroz</button><button type="button" class="sugerencia" data-ingrediente="salmón">Salmón</button><span class="buscador__idioma">Español o inglés · ingredientes comunes</span></div>
       </form>
     </section>
-
-    <!-- ===== 2. RESULTADOS + RECETA SELECCIONADA ===== -->
     <div class="contenido">
-
-      <!-- Resultados de la búsqueda (RF03) -->
-      <section class="tarjeta-seccion resultados" aria-labelledby="titulo-resultados">
-        <h2 id="titulo-resultados">Resultados</h2>
-
-        <!-- Estados de la UI: cargando / sin resultados / error / información -->
-        <div id="estado" class="estado estado--info" role="status" aria-live="polite">
-          Escribe un ingrediente y pulsa «Buscar recetas» para empezar.
-        </div>
-
-        <p id="contador-resultados" class="resultados__contador"></p>
+      <section id="recetas" class="resultados" aria-labelledby="titulo-resultados">
+        <div class="seccion__cabecera"><div><p class="sobretitulo">PARA INSPIRARTE</p><h2 id="titulo-resultados">Algo rico te espera.</h2></div><span class="seccion__numero" aria-hidden="true">↗</span></div>
+        <div id="estado" class="estado estado--info" role="status" aria-live="polite">Elige un ingrediente y descubre tu próxima receta.</div>
+        <p id="contador-resultados" class="resultados__contador" aria-live="polite"></p>
         <div id="lista-resultados" class="resultados__lista"></div>
+        <div id="inspiracion-vacia" class="inspiracion-vacia"><div class="inspiracion-vacia__icono"><svg class="icono" aria-hidden="true"><use href="#icono-plato"/></svg></div><h3>Todo empieza con un antojo.</h3><p>Busca lo que tienes en casa.<br>Nosotros ponemos las ideas.</p><span>BUSCA · DESCUBRE · PLANIFICA</span></div>
       </section>
-
-      <!-- Receta seleccionada (RF04 y RF05) -->
-      <aside id="detalle" class="tarjeta-seccion detalle" aria-labelledby="titulo-detalle">
-        <h2 id="titulo-detalle">Receta seleccionada</h2>
-
-        <p id="detalle-vacio" class="detalle__vacio">
-          Haz clic en una receta de los resultados para ver su información.
-        </p>
-
+      <aside id="detalle" class="detalle tarjeta-seccion" aria-labelledby="titulo-detalle">
+        <div class="detalle__cabecera"><p class="sobretitulo">UN PLATO, MUCHAS POSIBILIDADES</p><h2 id="titulo-detalle">Tu elección.</h2></div>
+        <div id="detalle-vacio" class="detalle__vacio"><span class="detalle__vacio-icono"><svg class="icono" aria-hidden="true"><use href="#icono-hoja"/></svg></span><h3>¿Cuál se te antoja?</h3><p>Selecciona una receta para ver sus ingredientes y preparar algo especial.</p><span class="detalle__vacio-pie"><svg class="icono" aria-hidden="true"><use href="#icono-calendario"/></svg> Después, dale un lugar en tu semana.</span></div>
         <div id="detalle-contenido" hidden>
-          <img id="detalle-imagen" class="detalle__imagen" alt="">
+          <img id="detalle-imagen" class="detalle__imagen" alt="" width="600" height="450">
           <h3 id="detalle-nombre" class="detalle__nombre"></h3>
-          <p class="detalle__etiquetas">
-            <span id="detalle-categoria" class="etiqueta"></span>
-            <span id="detalle-area" class="etiqueta etiqueta--area"></span>
-          </p>
-
-          <!-- Formulario para asignar la receta a un día (RF05) -->
-          <form id="formulario-plan" class="detalle__plan">
-            <label for="selector-dia">Agregar al día:</label>
-            <div class="detalle__plan-fila">
-              <select id="selector-dia" name="dia">
-                <option value="lunes">Lunes</option>
-                <option value="martes">Martes</option>
-                <option value="miercoles">Miércoles</option>
-                <option value="jueves">Jueves</option>
-                <option value="viernes">Viernes</option>
-                <option value="sabado">Sábado</option>
-                <option value="domingo">Domingo</option>
-              </select>
-              <button type="submit" class="boton boton--exito">Agregar al plan</button>
-            </div>
-          </form>
+          <p class="detalle__etiquetas"><span id="detalle-categoria" class="etiqueta"></span><span id="detalle-area" class="etiqueta etiqueta--area"></span></p>
+          <form id="formulario-plan" class="detalle__plan"><label for="selector-dia">Un lugar en tu semana</label><div class="detalle__plan-fila"><select id="selector-dia" name="dia"><option value="lunes">Lunes</option><option value="martes">Martes</option><option value="miercoles">Miércoles</option><option value="jueves">Jueves</option><option value="viernes">Viernes</option><option value="sabado">Sábado</option><option value="domingo">Domingo</option></select><button type="submit" class="boton boton--exito"><svg class="icono" aria-hidden="true"><use href="#icono-mas"/></svg> Agregar</button></div></form>
           <p id="mensaje-plan" class="mensaje" role="status" aria-live="polite" hidden></p>
-
-          <h4>Ingredientes</h4>
+          <p id="detalle-idioma" class="detalle__idioma"></p>
+          <div class="detalle__subtitulo"><h4>Ingredientes</h4><span id="cantidad-ingredientes"></span></div>
           <ul id="detalle-ingredientes" class="detalle__ingredientes"></ul>
-
-          <h4>Preparación</h4>
-          <p id="detalle-instrucciones" class="detalle__instrucciones"></p>
+          <h4>Preparación</h4><p id="detalle-instrucciones" class="detalle__instrucciones"></p>
         </div>
       </aside>
     </div>
-
-    <!-- ===== 3. MENÚ SEMANAL (RF06 y RF07) ===== -->
-    <section class="tarjeta-seccion plan" aria-labelledby="titulo-plan">
-      <div class="plan__cabecera">
-        <h2 id="titulo-plan">Menú semanal</h2>
-        <p id="contador-plan" class="plan__contador">0 recetas planificadas</p>
-      </div>
-      <!-- El calendario se genera con JavaScript (planner.js → renderizarPlan) -->
+    <section id="mi-semana" class="plan" aria-labelledby="titulo-plan">
+      <div class="plan__cabecera"><div><p class="sobretitulo">02 / ORGANIZA</p><h2 id="titulo-plan">Una semana bien servida.</h2><p class="plan__descripcion">Tus favoritos, cada uno en su día.</p></div><span id="contador-plan" class="plan__contador vidrio" aria-live="polite">0 recetas planificadas</span></div>
       <div id="calendario" class="calendario"></div>
+      <p class="plan__ayuda">Hasta 3 recetas por día · Tu plan se mantiene mientras esta página esté abierta.</p>
     </section>
-
   </main>
-
-  <footer class="pie">
-    <p>Meal Planner · Práctica calificada de Ingeniería Web · Datos: <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB</a></p>
-  </footer>
-
-  <!-- Orden de carga: primero la API, luego el planificador y al final la app que los usa -->
+  <footer class="pie contenedor"><a class="marca marca--pie" href="#inicio">meal<span class="marca__ligera">planner</span><span class="marca__punto">.</span></a><p>Hecho para disfrutar tu semana.</p><span>Datos de <a href="https://www.themealdb.com" target="_blank" rel="noopener">TheMealDB ↗</a></span></footer>
+  <!-- Navegación flotante de cristal: enlaces a las secciones de esta página. -->
+  <nav class="navegacion vidrio" aria-label="Secciones principales"><span class="navegacion__indicador" aria-hidden="true"></span><a href="#explorar" class="navegacion__enlace navegacion__enlace--activo" aria-current="location"><svg class="icono" aria-hidden="true"><use href="#icono-buscar"/></svg><span>Explorar</span></a><a href="#recetas" class="navegacion__enlace"><svg class="icono" aria-hidden="true"><use href="#icono-plato"/></svg><span>Recetas</span></a><a href="#mi-semana" class="navegacion__enlace"><svg class="icono" aria-hidden="true"><use href="#icono-calendario"/></svg><span>Mi semana</span></a></nav>
+  <!-- Las traducciones se cargan antes de convertir los datos de la API. -->
+  <script src="js/traducciones.js"></script>
   <script src="js/api.js"></script>
   <script src="js/planner.js"></script>
   <script src="js/app.js"></script>
